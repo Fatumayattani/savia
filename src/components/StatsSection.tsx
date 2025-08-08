@@ -49,7 +49,7 @@ export const StatsSection: React.FC = () => {
         
         <Grid container spacing={4}>
           {stats.map((stat, index) => (
-            <Grid item xs={6} md={3} key={index}>
+            <Grid item xs={6} md={3} key={index} component="div">
               <StatCard>
                 <StatNumber>
                   {stat.prefix}

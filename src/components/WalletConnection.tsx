@@ -198,7 +198,7 @@ export const WalletConnection: React.FC<WalletConnectionProps> = ({
               <Button
                 variant="contained"
                 onClick={onClose}
-                disabled={isWrongNetwork}
+                disabled={!!isWrongNetwork}
                 sx={{ 
                   borderRadius: '12px', 
                   flex: 1,
