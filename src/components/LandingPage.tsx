@@ -34,7 +34,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         onSwitchNetwork={onSwitchNetwork}
         onDisconnect={onDisconnect}
       />
-      <HeroSection />
+      <HeroSection onStartTrading={onGetStarted} />
       <StatsSection />
       <CTASection onGetStarted={onGetStarted} />
     </Box>

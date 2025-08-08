@@ -5,6 +5,10 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SecurityIcon from '@mui/icons-material/Security';
 import SpeedIcon from '@mui/icons-material/Speed';
 
+interface HeroSectionProps {
+  onStartTrading: () => void;
+}
+
 const float = keyframes`
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   50% { transform: translateY(-20px) rotate(5deg); }
@@ -75,7 +79,7 @@ const GradientButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-export const HeroSection: React.FC = () => {
+export const HeroSection: React.FC<HeroSectionProps> = ({ onStartTrading }) => {
   return (
     <HeroContainer>
       <Container maxWidth="lg">
@@ -115,7 +119,7 @@ export const HeroSection: React.FC = () => {
           </Typography>
           
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <GradientButton size="large">
+            <GradientButton size="large" onClick={onStartTrading}>
               Start Trading
             </GradientButton>
             <GradientButton size="large" variant="outlined">
