@@ -1,7 +1,21 @@
 import axios from 'axios';
-import { formatEther, parseEther } from 'ethers';
+import { formatEther, parseEther, formatUnits } from 'ethers';
+import CryptoJS from 'crypto-js';
 
 const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
+
+// OKX API Configuration
+const OKX_CONFIG = {
+  apiKey: 'eaa7947d-104b-4033-9b86-a0253676338a',
+  secretKey: '3CDA42067406E59D6FE13A2DCABBB456',
+  passphrase: 'trades',
+};
+
+// Generate OKX API signature
+const generateSignature = (timestamp: string, method: string, requestPath: string, body: string = '') => {
+  const message = timestamp + method + requestPath + body;
+  return CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(message, OKX_CONFIG.secretKey));
+};
 
 // Enhanced error handling
 class OKXAPIError extends Error {
@@ -11,14 +25,22 @@ class OKXAPIError extends Error {
   }
 }
 
-// Create OKX request without authentication (using public endpoints)
+// Create authenticated OKX request
 const createOKXRequest = async (method: string, endpoint: string, params?: any) => {
+  const timestamp = new Date().toISOString();
+  const requestPath = endpoint + (params ? '?' + new URLSearchParams(params).toString() : '');
+  const signature = generateSignature(timestamp, method.toUpperCase(), requestPath);
+
   try {
     const response = await axios({
       method,
       url: OKX_BASE_URL + endpoint,
       params,
       headers: {
+        'OK-ACCESS-KEY': OKX_CONFIG.apiKey,
+        'OK-ACCESS-SIGN': signature,
+        'OK-ACCESS-TIMESTAMP': timestamp,
+        'OK-ACCESS-PASSPHRASE': OKX_CONFIG.passphrase,
         'Content-Type': 'application/json',
       },
       timeout: 10000,
@@ -26,8 +48,13 @@ const createOKXRequest = async (method: string, endpoint: string, params?: any) 
     
     return response;
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      throw new OKXAPIError('API authentication failed. Using fallback pricing.');
+    console.error('OKX API Error:', error.response?.data || error.message);
+    
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      throw new OKXAPIError('API authentication failed. Please check your credentials.');
+    }
+    if (error.response?.status === 429) {
+      throw new OKXAPIError('Rate limit exceeded. Please try again in a moment.');
     }
     throw error;
   }
@@ -153,8 +180,25 @@ export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
 };
 
 export const getSwapData = async (params: SwapParams): Promise<SwapResponse> => {
-  // For demo purposes, we'll return a mock response since swap execution requires proper API access
-  throw new OKXAPIError('Swap execution is not available in demo mode. Please configure proper OKX API credentials for live trading.');
+  try {
+    const response = await createOKXRequest('GET', '/swap', {
+      chainId: params.chainId,
+      inTokenAddress: params.inTokenAddress,
+      outTokenAddress: params.outTokenAddress,
+      amount: params.amount,
+      slippage: params.slippage || '0.5',
+      userWalletAddress: params.userWalletAddress,
+    });
+
+    if (response.data.code !== '0') {
+      throw new OKXAPIError(response.data.msg || 'Failed to get swap data', response.data.code);
+    }
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error getting swap data:', error);
+    throw new OKXAPIError(error.message || 'Failed to get swap transaction data');
+  }
 };
 
 // Supported tokens on Ethereum mainnet
