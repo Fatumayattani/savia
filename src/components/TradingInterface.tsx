@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { 
   Container, 
-  Paper, 
   Typography, 
   Box, 
   IconButton,
   Alert,
-  Snackbar
+  Snackbar,
+  Grid
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -18,18 +18,7 @@ const TradingContainer = styled(Container)(({ theme }) => ({
   minHeight: '100vh',
   paddingTop: theme.spacing(12),
   paddingBottom: theme.spacing(4),
-  background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-}));
-
-const TradingCard = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  borderRadius: '24px',
-  background: 'rgba(255, 255, 255, 0.95)',
-  backdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255, 255, 255, 0.2)',
-  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.1)',
-  maxWidth: '480px',
-  margin: '0 auto',
+  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 }));
 
 interface TradingInterfaceProps {
@@ -163,10 +152,12 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
         <IconButton 
           onClick={onBack}
           sx={{ 
-            background: 'rgba(255, 255, 255, 0.9)',
+            background: 'rgba(255, 255, 255, 0.2)',
             backdropFilter: 'blur(20px)',
+            color: 'white',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
             '&:hover': {
-              background: 'rgba(255, 255, 255, 1)',
+              background: 'rgba(255, 255, 255, 0.3)',
             },
           }}
         >
@@ -174,55 +165,113 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
         </IconButton>
       </Box>
       
-      <TradingCard elevation={0}>
-        <Typography 
-          variant="h4" 
-          component="h1" 
-          gutterBottom
-          sx={{ 
-            fontWeight: 800,
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            mb: 4,
-          }}
-        >
-          Swap Tokens
-        </Typography>
-
-        {chainId !== 1 && account && (
-          <Alert severity="warning" sx={{ mb: 3, borderRadius: '12px' }}>
-            Please switch to Ethereum mainnet to use the DEX aggregator
-          </Alert>
-        )}
-
-        {!account && (
-          <Alert severity="info" sx={{ mb: 3, borderRadius: '12px' }}>
-            Connect your MetaMask wallet to start trading
-          </Alert>
-        )}
+      <Grid container spacing={4} sx={{ height: 'calc(100vh - 200px)' }}>
+        {/* Left Side - Artistic Image */}
+        <Grid item xs={12} lg={6}>
+          <Box sx={{ 
+            height: '100%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            position: 'relative',
+          }}>
+            <Box
+              component="img"
+              src="https://images.pexels.com/photos/730547/pexels-photo-730547.jpeg"
+              alt="Trading Art"
+              sx={{
+                width: '100%',
+                maxWidth: '500px',
+                height: 'auto',
+                borderRadius: '24px',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+                filter: 'brightness(1.1) contrast(1.1)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                  boxShadow: '0 30px 80px rgba(0, 0, 0, 0.4)',
+                },
+              }}
+            />
+            
+            {/* Floating Text Overlay */}
+            <Box sx={{
+              position: 'absolute',
+              bottom: 20,
+              left: 20,
+              right: 20,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '16px',
+              padding: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+            }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                Smart Trading Made Simple
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Get the best rates across 150+ DEXs with just one click
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
         
-        <SwapForm 
-          onGetQuote={handleGetQuote} 
-          loading={loading} 
-          balance={balance}
-          account={account}
-          chainId={chainId}
-        />
-        
-        <QuoteDisplay 
-          quote={quote} 
-          loading={loading} 
-          error={error}
-          onExecuteSwap={handleExecuteSwap}
-          swapLoading={swapLoading}
-          fromToken={currentSwapParams?.fromToken || ''}
-          toToken={currentSwapParams?.toToken || ''}
-        />
-      </TradingCard>
+        {/* Right Side - Swap Form */}
+        <Grid item xs={12} lg={6}>
+          <Box sx={{ 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}>
+            <Typography 
+              variant="h3" 
+              component="h1" 
+              gutterBottom
+              sx={{ 
+                fontWeight: 800,
+                textAlign: 'center',
+                color: 'white',
+                mb: 4,
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+              }}
+            >
+              Swap Tokens
+            </Typography>
 
+            {chainId !== 1 && account && (
+              <Alert severity="warning" sx={{ mb: 3, borderRadius: '12px' }}>
+                Please switch to Ethereum mainnet to use the DEX aggregator
+              </Alert>
+            )}
+
+            {!account && (
+              <Alert severity="info" sx={{ mb: 3, borderRadius: '12px' }}>
+                Connect your MetaMask wallet to start trading
+              </Alert>
+            )}
+            
+            <SwapForm 
+              onGetQuote={handleGetQuote} 
+              loading={loading} 
+              balance={balance}
+              account={account}
+              chainId={chainId}
+            />
+            
+            <QuoteDisplay 
+              quote={quote} 
+              loading={loading} 
+              error={error}
+              onExecuteSwap={handleExecuteSwap}
+              swapLoading={swapLoading}
+              fromToken={currentSwapParams?.fromToken || ''}
+              toToken={currentSwapParams?.toToken || ''}
+            />
+          </Box>
+        </Grid>
+      </Grid>
+        
       {/* Success Notification */}
       <Snackbar 
         open={!!successMessage} 
