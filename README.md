@@ -2,7 +2,6 @@
 
 Savia is a decentralized exchange (DEX) aggregator interface that allows users to get the best token swap rates across multiple liquidity sources using the OKX DEX API. With seamless MetaMask integration, users can easily connect their wallets, get quotes, and execute swaps.
 
-![Savia Screenshot](screenshot.png) *(Note: You'll want to add an actual screenshot here after you've built the project)*
 
 ## Features
 
