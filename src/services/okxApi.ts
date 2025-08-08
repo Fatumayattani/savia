@@ -2,8 +2,8 @@ import axios from 'axios';
 import { formatEther, parseEther } from 'ethers';
 
 const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
-const OKX_API_KEY = 'eaa7947d-104b-4033-9b86-a0253676338a';
-const OKX_SECRET_KEY = '3CDA42067406E59D6FE13A2DCABBB456';
+const OKX_API_KEY = process.env.REACT_APP_OKX_API_KEY;
+const OKX_SECRET_KEY = process.env.REACT_APP_OKX_SECRET_KEY;
 
 // Create axios instance with authentication headers
 const okxApi = axios.create({
