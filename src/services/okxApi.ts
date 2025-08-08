@@ -1,21 +1,8 @@
 import axios from 'axios';
-import { formatEther, parseEther } from 'ethers';
+import { formatEther, parseEther, formatUnits } from 'ethers';
+import CryptoJS from 'crypto-js';
 
 const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
-const OKX_API_KEY = process.env.REACT_APP_OKX_API_KEY;
-const OKX_SECRET_KEY = process.env.REACT_APP_OKX_SECRET_KEY;
-
-// Create axios instance with authentication headers
-const okxApi = axios.create({
-  baseURL: OKX_BASE_URL,
-  headers: {
-    'OK-ACCESS-KEY': OKX_API_KEY,
-    'OK-ACCESS-SIGN': OKX_SECRET_KEY,
-    'OK-ACCESS-TIMESTAMP': () => Date.now().toString(),
-    'OK-ACCESS-PASSPHRASE': 'your-passphrase', // You may need to provide this
-    'Content-Type': 'application/json',
-  },
-});
 
 // Enhanced error handling
 class OKXAPIError extends Error {
@@ -24,6 +11,45 @@ class OKXAPIError extends Error {
     this.name = 'OKXAPIError';
   }
 }
+
+// Generate OKX API signature
+const generateSignature = (timestamp: string, method: string, requestPath: string, body: string = '') => {
+  const secretKey = process.env.REACT_APP_OKX_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error('OKX Secret Key not found in environment variables');
+  }
+  
+  const message = timestamp + method + requestPath + body;
+  return CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(message, secretKey));
+};
+
+// Create axios instance with dynamic authentication
+const createOKXRequest = (method: string, endpoint: string, params?: any) => {
+  const apiKey = process.env.REACT_APP_OKX_API_KEY;
+  const passphrase = process.env.REACT_APP_OKX_PASSPHRASE || '';
+  
+  if (!apiKey) {
+    throw new Error('OKX API Key not found in environment variables');
+  }
+
+  const timestamp = Date.now().toString();
+  const requestPath = endpoint + (params ? '?' + new URLSearchParams(params).toString() : '');
+  const signature = generateSignature(timestamp, method.toUpperCase(), '/api/v5/dex/aggregator' + endpoint, '');
+
+  return axios({
+    method,
+    url: OKX_BASE_URL + endpoint,
+    params,
+    headers: {
+      'OK-ACCESS-KEY': apiKey,
+      'OK-ACCESS-SIGN': signature,
+      'OK-ACCESS-TIMESTAMP': timestamp,
+      'OK-ACCESS-PASSPHRASE': passphrase,
+      'Content-Type': 'application/json',
+    },
+    timeout: 10000,
+  });
+};
 
 interface QuoteParams {
   chainId: number;
@@ -75,15 +101,12 @@ interface SwapResponse {
 
 export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
   try {
-    const response = await okxApi.get('/quote', {
-      params: {
-        chainId: params.chainId,
-        inTokenAddress: params.inTokenAddress,
-        outTokenAddress: params.outTokenAddress,
-        amount: params.amount,
-        slippage: params.slippage || '0.5',
-      },
-      timeout: 10000, // 10 second timeout
+    const response = await createOKXRequest('GET', '/quote', {
+      chainId: params.chainId,
+      inTokenAddress: params.inTokenAddress,
+      outTokenAddress: params.outTokenAddress,
+      amount: params.amount,
+      slippage: params.slippage || '0.5',
     });
 
     if (response.data.code !== '0') {
@@ -102,6 +125,10 @@ export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
       throw new OKXAPIError('Request timeout. Please try again.');
     }
     
+    if (error.response?.status === 401) {
+      throw new OKXAPIError('API authentication failed. Please check your API credentials.');
+    }
+    
     if (error.response?.status === 429) {
       throw new OKXAPIError('Rate limit exceeded. Please wait a moment and try again.');
     }
@@ -116,16 +143,13 @@ export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
 
 export const getSwapData = async (params: SwapParams): Promise<SwapResponse> => {
   try {
-    const response = await okxApi.get('/swap', {
-      params: {
-        chainId: params.chainId,
-        inTokenAddress: params.inTokenAddress,
-        outTokenAddress: params.outTokenAddress,
-        amount: params.amount,
-        slippage: params.slippage || '0.5',
-        userWalletAddress: params.userWalletAddress,
-      },
-      timeout: 15000, // 15 second timeout for swap data
+    const response = await createOKXRequest('GET', '/swap', {
+      chainId: params.chainId,
+      inTokenAddress: params.inTokenAddress,
+      outTokenAddress: params.outTokenAddress,
+      amount: params.amount,
+      slippage: params.slippage || '0.5',
+      userWalletAddress: params.userWalletAddress,
     });
 
     if (response.data.code !== '0') {
