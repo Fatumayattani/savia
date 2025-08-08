@@ -6,9 +6,14 @@ const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
 
 // OKX API Configuration
 const OKX_CONFIG = {
-  apiKey: 'eaa7947d-104b-4033-9b86-a0253676338a',
-  secretKey: '3CDA42067406E59D6FE13A2DCABBB456',
-  passphrase: 'trades',
+  apiKey: process.env.REACT_APP_OKX_API_KEY || '',
+  secretKey: process.env.REACT_APP_OKX_SECRET_KEY || '',
+  passphrase: process.env.REACT_APP_OKX_PASSPHRASE || '',
+};
+
+// Check if API credentials are configured
+const hasValidCredentials = () => {
+  return OKX_CONFIG.apiKey && OKX_CONFIG.secretKey && OKX_CONFIG.passphrase;
 };
 
 // Generate OKX API signature
@@ -156,6 +161,12 @@ const generateMockQuote = (params: QuoteParams): QuoteResponse => {
 };
 
 export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
+  // If no valid credentials, use demo mode
+  if (!hasValidCredentials()) {
+    console.warn('OKX API credentials not configured, using demo mode');
+    return generateMockQuote(params);
+  }
+
   try {
     // First try the real OKX API
     const response = await createOKXRequest('GET', '/quote', {
@@ -172,7 +183,12 @@ export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
 
     return response.data;
   } catch (error: any) {
-    console.warn('OKX API not available, using demo mode:', error.message);
+    // Check if it's an authentication error
+    if (error.response?.data?.code === '50114' || error.response?.status === 401 || error.response?.status === 403) {
+      console.warn('OKX API authentication failed, using demo mode. Please check your API credentials.');
+    } else {
+      console.warn('OKX API not available, using demo mode:', error.message);
+    }
     
     // Return mock quote for demo purposes
     return generateMockQuote(params);
@@ -180,6 +196,11 @@ export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
 };
 
 export const getSwapData = async (params: SwapParams): Promise<SwapResponse> => {
+  // If no valid credentials, throw error for swap execution
+  if (!hasValidCredentials()) {
+    throw new OKXAPIError('API credentials not configured. Swap execution requires valid OKX API credentials.');
+  }
+
   try {
     const response = await createOKXRequest('GET', '/swap', {
       chainId: params.chainId,
@@ -196,8 +217,12 @@ export const getSwapData = async (params: SwapParams): Promise<SwapResponse> => 
 
     return response.data;
   } catch (error: any) {
+    if (error.response?.data?.code === '50114' || error.response?.status === 401 || error.response?.status === 403) {
+      throw new OKXAPIError('API authentication failed. Please check your OKX API credentials.');
+    }
+    
     console.error('Error getting swap data:', error);
-    throw new OKXAPIError(error.message || 'Failed to get swap transaction data');
+    throw new OKXAPIError(error.response?.data?.msg || error.message || 'Failed to get swap transaction data');
   }
 };
 
