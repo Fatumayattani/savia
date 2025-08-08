@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import { ethers, BrowserProvider } from 'ethers';
 
 declare global {
   interface Window {
@@ -9,14 +9,14 @@ declare global {
 
 export const useWallet = () => {
   const [account, setAccount] = useState<string | null>(null);
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
+  const [provider, setProvider] = useState<BrowserProvider | null>(null);
 
   const connectWallet = async () => {
     if (window.ethereum) {
       try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         setAccount(accounts[0]);
-        const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+        const web3Provider = new BrowserProvider(window.ethereum);
         setProvider(web3Provider);
       } catch (error) {
         console.error("Error connecting to MetaMask:", error);
@@ -32,7 +32,7 @@ export const useWallet = () => {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         if (accounts.length > 0) {
           setAccount(accounts[0]);
-          setProvider(new ethers.providers.Web3Provider(window.ethereum));
+          setProvider(new BrowserProvider(window.ethereum));
         }
       }
     };

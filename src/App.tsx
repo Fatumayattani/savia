@@ -28,7 +28,7 @@ const App: React.FC = () => {
     setError(null);
 
     try {
-      const amountInWei = ethers.utils.parseEther(amount).toString();
+      const amountInWei = ethers.parseEther(amount).toString();
       const quoteResponse = await getQuote({
         chainId: 1, // Ethereum mainnet
         inTokenAddress: ETH_ADDRESS,
