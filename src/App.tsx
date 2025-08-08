@@ -35,7 +35,7 @@ const theme = createTheme({
 });
 
 const App: React.FC = () => {
-  const { account, provider, connectWallet } = useWallet();
+  const { account, provider, balance, chainId, connectWallet, executeSwap } = useWallet();
   const [showTrading, setShowTrading] = useState(false);
 
   const handleGetStarted = () => {
@@ -57,6 +57,9 @@ const App: React.FC = () => {
         <TradingInterface 
           account={account} 
           provider={provider} 
+          balance={balance}
+          chainId={chainId}
+          executeSwap={executeSwap}
           onBack={handleBackToLanding}
         />
       ) : (
