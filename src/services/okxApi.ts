@@ -22,7 +22,7 @@ const generateSignature = (timestamp: string, method: string, requestPath: strin
 const createOKXRequest = async (method: string, endpoint: string, params?: any) => {
   const apiKey = process.env.REACT_APP_OKX_API_KEY;
   const secretKey = process.env.REACT_APP_OKX_SECRET_KEY;
-  const passphrase = process.env.REACT_APP_OKX_PASSPHRASE || '';
+  const passphrase = process.env.REACT_APP_OKX_PASSPHRASE;
   
   if (!apiKey || !secretKey) {
     throw new Error('OKX API credentials not found in environment variables');
