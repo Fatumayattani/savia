@@ -10,18 +10,16 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { SwapForm } from './SwapForm';
-import { QuoteDisplay } from './QuoteDisplay';
+import { SwapForm } from '../components/SwapForm';
+import { QuoteDisplay } from '../components/QuoteDisplay';
 import { getQuote, getSwapData, TOKENS, parseTokenAmount } from '../services/okxApi';
 
-const TradingContainer = styled(Container)(({ theme }) => ({
+const DashboardContainer = styled(Container)(({ theme }) => ({
   minHeight: '100vh',
-  paddingTop: theme.spacing(12),
-  paddingBottom: theme.spacing(4),
   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
 }));
 
-interface TradingInterfaceProps {
+interface SwapDashboardPageProps {
   account: string | null;
   provider: any;
   balance: string;
@@ -30,7 +28,7 @@ interface TradingInterfaceProps {
   onBack: () => void;
 }
 
-export const TradingInterface: React.FC<TradingInterfaceProps> = ({ 
+export const SwapDashboardPage: React.FC<SwapDashboardPageProps> = ({ 
   account, 
   provider, 
   balance,
@@ -147,8 +145,8 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
   };
 
   return (
-    <TradingContainer maxWidth="sm">
-      <Box sx={{ mb: 3 }}>
+    <DashboardContainer maxWidth="xl">
+      <Box sx={{ pt: 3, pb: 4 }}>
         <IconButton 
           onClick={onBack}
           sx={{ 
@@ -156,6 +154,7 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
             backdropFilter: 'blur(20px)',
             color: 'white',
             border: '1px solid rgba(255, 255, 255, 0.3)',
+            mb: 4,
             '&:hover': {
               background: 'rgba(255, 255, 255, 0.3)',
             },
@@ -163,114 +162,116 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
         >
           <ArrowBackIcon />
         </IconButton>
-      </Box>
-      
-      <Grid container spacing={4} sx={{ height: 'calc(100vh - 200px)' }}>
-        {/* Left Side - Artistic Image */}
-        <Grid item xs={12} lg={6}>
-          <Box sx={{ 
-            height: '100%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            position: 'relative',
-          }}>
-            <Box
-              component="img"
-              src="https://images.pexels.com/photos/730547/pexels-photo-730547.jpeg"
-              alt="Trading Art"
-              sx={{
-                width: '100%',
-                maxWidth: '500px',
-                height: 'auto',
-                borderRadius: '24px',
-                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-                filter: 'brightness(1.1) contrast(1.1)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'scale(1.02)',
-                  boxShadow: '0 30px 80px rgba(0, 0, 0, 0.4)',
-                },
-              }}
-            />
-            
-            {/* Floating Text Overlay */}
-            <Box sx={{
-              position: 'absolute',
-              bottom: 20,
-              left: 20,
-              right: 20,
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(20px)',
-              borderRadius: '16px',
-              padding: '20px',
-              border: '1px solid rgba(255, 255, 255, 0.3)',
-            }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                Smart Trading Made Simple
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                Get the best rates across 150+ DEXs with just one click
-              </Typography>
-            </Box>
-          </Box>
-        </Grid>
         
-        {/* Right Side - Swap Form */}
-        <Grid item xs={12} lg={6}>
-          <Box sx={{ 
-            height: '100%', 
-            display: 'flex', 
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}>
-            <Typography 
-              variant="h3" 
-              component="h1" 
-              gutterBottom
-              sx={{ 
-                fontWeight: 800,
-                textAlign: 'center',
-                color: 'white',
-                mb: 4,
-                textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
-              }}
-            >
-              Swap Tokens
-            </Typography>
+        <Grid container spacing={4}>
+          {/* Left Side - Artistic Image */}
+          <Grid item xs={12} lg={6}>
+            <Box sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              position: 'relative',
+              minHeight: '600px',
+            }}>
+              <Box
+                component="img"
+                src="https://images.pexels.com/photos/730547/pexels-photo-730547.jpeg"
+                alt="Trading Art"
+                sx={{
+                  width: '100%',
+                  maxWidth: '500px',
+                  height: 'auto',
+                  borderRadius: '24px',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+                  filter: 'brightness(1.1) contrast(1.1)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                    boxShadow: '0 30px 80px rgba(0, 0, 0, 0.4)',
+                  },
+                }}
+              />
+              
+              {/* Floating Text Overlay */}
+              <Box sx={{
+                position: 'absolute',
+                bottom: 20,
+                left: 20,
+                right: 20,
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(20px)',
+                borderRadius: '16px',
+                padding: '20px',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+              }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                  Smart Trading Made Simple
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Get the best rates across 150+ DEXs with just one click
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+          
+          {/* Right Side - Swap Dashboard */}
+          <Grid item xs={12} lg={6}>
+            <Box sx={{ 
+              height: '100%', 
+              display: 'flex', 
+              flexDirection: 'column',
+              justifyContent: 'center',
+              minHeight: '600px',
+            }}>
+              <Typography 
+                variant="h3" 
+                component="h1" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: 800,
+                  textAlign: 'center',
+                  color: 'white',
+                  mb: 4,
+                  textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
+                }}
+              >
+                Swap Dashboard
+              </Typography>
 
-            {chainId !== 1 && account && (
-              <Alert severity="warning" sx={{ mb: 3, borderRadius: '12px' }}>
-                Please switch to Ethereum mainnet to use the DEX aggregator
-              </Alert>
-            )}
+              {chainId !== 1 && account && (
+                <Alert severity="warning" sx={{ mb: 3, borderRadius: '12px' }}>
+                  Please switch to Ethereum mainnet to use the DEX aggregator
+                </Alert>
+              )}
 
-            {!account && (
-              <Alert severity="info" sx={{ mb: 3, borderRadius: '12px' }}>
-                Connect your MetaMask wallet to start trading
-              </Alert>
-            )}
-            
-            <SwapForm 
-              onGetQuote={handleGetQuote} 
-              loading={loading} 
-              balance={balance}
-              account={account}
-              chainId={chainId}
-            />
-            
-            <QuoteDisplay 
-              quote={quote} 
-              loading={loading} 
-              error={error}
-              onExecuteSwap={handleExecuteSwap}
-              swapLoading={swapLoading}
-              fromToken={currentSwapParams?.fromToken || ''}
-              toToken={currentSwapParams?.toToken || ''}
-            />
-          </Box>
+              {!account && (
+                <Alert severity="info" sx={{ mb: 3, borderRadius: '12px' }}>
+                  Connect your MetaMask wallet to start trading
+                </Alert>
+              )}
+              
+              <SwapForm 
+                onGetQuote={handleGetQuote} 
+                loading={loading} 
+                balance={balance}
+                account={account}
+                chainId={chainId}
+              />
+              
+              <QuoteDisplay 
+                quote={quote} 
+                loading={loading} 
+                error={error}
+                onExecuteSwap={handleExecuteSwap}
+                swapLoading={swapLoading}
+                fromToken={currentSwapParams?.fromToken || ''}
+                toToken={currentSwapParams?.toToken || ''}
+              />
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
+      </Box>
         
       {/* Success Notification */}
       <Snackbar 
@@ -303,6 +304,6 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           {error}
         </Alert>
       </Snackbar>
-    </TradingContainer>
+    </DashboardContainer>
   );
 };

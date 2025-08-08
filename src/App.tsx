@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useWallet } from './hooks/useWallet';
 import { LandingPage } from './components/LandingPage';
-import { TradingInterface } from './components/TradingInterface';
+import { SwapDashboardPage } from './pages/SwapDashboardPage';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { Alert, Snackbar } from '@mui/material';
@@ -101,7 +101,7 @@ const App: React.FC = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       {showTrading ? (
-        <TradingInterface 
+        <SwapDashboardPage 
           account={account} 
           provider={provider} 
           balance={balance}
