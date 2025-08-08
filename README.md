@@ -39,7 +39,7 @@ Savia is a decentralized exchange (DEX) aggregator interface that allows users t
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/savia.git
+   git clone https://github.com/Fatumayattani/savia.git
    cd savia
    ```
 
