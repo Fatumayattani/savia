@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BrowserProvider, formatEther, parseEther } from 'ethers';
+import { BrowserProvider, formatEther } from 'ethers';
 
 declare global {
   interface Window {

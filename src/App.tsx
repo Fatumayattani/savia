@@ -51,7 +51,6 @@ const App: React.FC = () => {
     balance, 
     chainId, 
     isConnecting,
-    isConnected,
     connectWallet, 
     disconnectWallet,
     switchToEthereum,

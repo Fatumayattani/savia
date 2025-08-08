@@ -14,7 +14,6 @@ import {
 import { styled, keyframes } from '@mui/material/styles';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
-import TimerIcon from '@mui/icons-material/Timer';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { formatEther, formatUnits } from 'ethers';
 

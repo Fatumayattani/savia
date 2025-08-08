@@ -20,7 +20,7 @@ import { styled, keyframes } from '@mui/material/styles';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import SwapVertIcon from '@mui/icons-material/SwapVert';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import { TOKENS, formatTokenAmount, parseTokenAmount } from '../services/okxApi';
+import { TOKENS } from '../services/okxApi';
 
 const float = keyframes`
   0%, 100% { transform: translateY(0px); }

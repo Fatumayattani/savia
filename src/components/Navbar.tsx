@@ -62,8 +62,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     await onConnect();
   };
 
-  const isWrongNetwork = chainId && chainId !== 1;
-
   return (
     <>
       <StyledAppBar position="fixed" elevation={0}>
