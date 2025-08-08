@@ -51,35 +51,33 @@ const App: React.FC = () => {
     balance, 
     chainId, 
     isConnecting,
+    walletError,
     connectWallet, 
     disconnectWallet,
     switchToEthereum,
     executeSwap,
     checkMetaMaskInstalled,
+    clearWalletError,
   } = useWallet();
   
   const [showTrading, setShowTrading] = useState(false);
-  const [appError, setAppError] = useState<string | null>(null);
 
   const handleConnect = async () => {
     try {
-      setAppError(null);
       if (!checkMetaMaskInstalled()) {
-        setAppError('MetaMask is not installed. Please install MetaMask to continue.');
         return;
       }
       await connectWallet();
     } catch (error: any) {
-      setAppError(error.message || 'Failed to connect wallet');
+      // Error is already handled in useWallet hook
     }
   };
 
   const handleSwitchNetwork = async () => {
     try {
-      setAppError(null);
       await switchToEthereum();
     } catch (error: any) {
-      setAppError(error.message || 'Failed to switch network');
+      // Error is already handled in useWallet hook
     }
   };
 
@@ -88,7 +86,7 @@ const App: React.FC = () => {
       if (chainId === 1) {
         setShowTrading(true);
       } else {
-        setAppError('Please switch to Ethereum mainnet to start trading');
+        // This will be handled by the network check in the component
       }
     } else {
       handleConnect();
@@ -125,17 +123,17 @@ const App: React.FC = () => {
 
       {/* Global Error Notification */}
       <Snackbar 
-        open={!!appError} 
+        open={!!walletError} 
         autoHideDuration={6000} 
-        onClose={() => setAppError(null)}
+        onClose={clearWalletError}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert 
-          onClose={() => setAppError(null)} 
+          onClose={clearWalletError} 
           severity="error" 
           sx={{ borderRadius: '12px', maxWidth: '400px' }}
         >
-          {appError}
+          {walletError}
         </Alert>
       </Snackbar>
     </ThemeProvider>

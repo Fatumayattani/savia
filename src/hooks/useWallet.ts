@@ -14,6 +14,7 @@ interface WalletState {
   chainId: number | null;
   isConnecting: boolean;
   isConnected: boolean;
+  walletError: string | null;
 }
 
 export const useWallet = () => {
@@ -24,16 +25,26 @@ export const useWallet = () => {
     chainId: null,
     isConnecting: false,
     isConnected: false,
+    walletError: null,
   });
 
   const updateBalance = useCallback(async (provider: BrowserProvider, account: string) => {
     try {
+      setWalletState(prev => ({ ...prev, walletError: null }));
       const balance = await provider.getBalance(account);
       setWalletState(prev => ({ ...prev, balance: formatEther(balance) }));
     } catch (error) {
       console.error('Error fetching balance:', error);
+      setWalletState(prev => ({ 
+        ...prev, 
+        walletError: 'Failed to fetch wallet balance. Please check your connection.' 
+      }));
     }
   }, []);
+
+  const clearWalletError = () => {
+    setWalletState(prev => ({ ...prev, walletError: null }));
+  };
 
   const checkMetaMaskInstalled = () => {
     return typeof window !== 'undefined' && window.ethereum && window.ethereum.isMetaMask;
@@ -47,6 +58,7 @@ export const useWallet = () => {
     setWalletState(prev => ({ ...prev, isConnecting: true }));
 
     try {
+      setWalletState(prev => ({ ...prev, walletError: null }));
       // Request account access
       const accounts = await window.ethereum.request({ 
         method: 'eth_requestAccounts' 
@@ -79,12 +91,14 @@ export const useWallet = () => {
       return accounts[0];
     } catch (error: any) {
       console.error('Error connecting to MetaMask:', error);
+      let errorMessage = 'Failed to connect wallet';
       if (error.code === 4001) {
-        throw new Error('Connection rejected by user');
+        errorMessage = 'Connection rejected by user';
       } else if (error.code === -32002) {
-        throw new Error('Connection request already pending. Please check MetaMask.');
+        errorMessage = 'Connection request already pending. Please check MetaMask.';
       }
-      throw error;
+      setWalletState(prev => ({ ...prev, walletError: errorMessage }));
+      throw new Error(errorMessage);
     } finally {
       setWalletState(prev => ({ ...prev, isConnecting: false }));
     }
@@ -98,6 +112,7 @@ export const useWallet = () => {
       chainId: null,
       isConnecting: false,
       isConnected: false,
+      walletError: null,
     });
   };
 
@@ -107,18 +122,21 @@ export const useWallet = () => {
     }
 
     try {
+      setWalletState(prev => ({ ...prev, walletError: null }));
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x1' }], // Ethereum mainnet
       });
     } catch (error: any) {
       console.error('Error switching to Ethereum:', error);
+      let errorMessage = 'Failed to switch network';
       if (error.code === 4902) {
-        throw new Error('Ethereum mainnet is not added to MetaMask');
+        errorMessage = 'Ethereum mainnet is not added to MetaMask';
       } else if (error.code === 4001) {
-        throw new Error('Network switch rejected by user');
+        errorMessage = 'Network switch rejected by user';
       }
-      throw error;
+      setWalletState(prev => ({ ...prev, walletError: errorMessage }));
+      throw new Error(errorMessage);
     }
   };
 
@@ -128,6 +146,7 @@ export const useWallet = () => {
     }
 
     try {
+      setWalletState(prev => ({ ...prev, walletError: null }));
       await window.ethereum.request({
         method: 'wallet_watchAsset',
         params: {
@@ -141,6 +160,10 @@ export const useWallet = () => {
       });
     } catch (error) {
       console.error('Error adding token to wallet:', error);
+      setWalletState(prev => ({ 
+        ...prev, 
+        walletError: 'Failed to add token to wallet' 
+      }));
       throw error;
     }
   };
@@ -155,6 +178,7 @@ export const useWallet = () => {
     }
 
     try {
+      setWalletState(prev => ({ ...prev, walletError: null }));
       const signer = await walletState.provider.getSigner();
       
       const transaction = {
@@ -178,14 +202,16 @@ export const useWallet = () => {
       return { tx, receipt };
     } catch (error: any) {
       console.error('Error executing swap:', error);
+      let errorMessage = 'Failed to execute swap';
       if (error.code === 4001) {
-        throw new Error('Transaction rejected by user');
+        errorMessage = 'Transaction rejected by user';
       } else if (error.code === 'INSUFFICIENT_FUNDS') {
-        throw new Error('Insufficient funds for transaction');
+        errorMessage = 'Insufficient funds for transaction';
       } else if (error.code === 'UNPREDICTABLE_GAS_LIMIT') {
-        throw new Error('Cannot estimate gas. Transaction may fail.');
+        errorMessage = 'Cannot estimate gas. Transaction may fail.';
       }
-      throw error;
+      setWalletState(prev => ({ ...prev, walletError: errorMessage }));
+      throw new Error(errorMessage);
     }
   };
 
@@ -195,6 +221,7 @@ export const useWallet = () => {
       if (!checkMetaMaskInstalled()) return;
 
       try {
+        setWalletState(prev => ({ ...prev, walletError: null }));
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         
         if (accounts.length > 0) {
@@ -214,6 +241,10 @@ export const useWallet = () => {
         }
       } catch (error) {
         console.error('Error checking connection:', error);
+        setWalletState(prev => ({ 
+          ...prev, 
+          walletError: 'Failed to check wallet connection' 
+        }));
       }
     };
 
@@ -273,5 +304,6 @@ export const useWallet = () => {
     addTokenToWallet,
     executeSwap,
     checkMetaMaskInstalled,
+    clearWalletError,
   };
 };
