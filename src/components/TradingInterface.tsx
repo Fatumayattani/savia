@@ -12,8 +12,7 @@ import { styled } from '@mui/material/styles';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { SwapForm } from './SwapForm';
 import { QuoteDisplay } from './QuoteDisplay';
-import { getQuote, getSwapData } from '../services/okxApi';
-import { parseEther } from 'ethers';
+import { getQuote, getSwapData, TOKENS, parseTokenAmount } from '../services/okxApi';
 
 const TradingContainer = styled(Container)(({ theme }) => ({
   minHeight: '100vh',
@@ -29,6 +28,8 @@ const TradingCard = styled(Paper)(({ theme }) => ({
   backdropFilter: 'blur(20px)',
   border: '1px solid rgba(255, 255, 255, 0.2)',
   boxShadow: '0 20px 60px rgba(0, 0, 0, 0.1)',
+  maxWidth: '480px',
+  margin: '0 auto',
 }));
 
 interface TradingInterfaceProps {
@@ -66,12 +67,20 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
       return;
     }
 
+    if (!amount || parseFloat(amount) <= 0) {
+      setError('Please enter a valid amount');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setQuote(null);
 
     try {
-      const amountInWei = parseEther(amount).toString();
+      // Get token decimals for proper amount parsing
+      const fromTokenInfo = Object.values(TOKENS).find(t => t.address === fromToken);
+      const amountInWei = parseTokenAmount(amount, fromTokenInfo?.decimals || 18);
+
       const quoteResponse = await getQuote({
         chainId: 1,
         inTokenAddress: fromToken,
@@ -87,13 +96,14 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           toToken,
           amount: amountInWei,
           slippage: slippage.toString(),
+          originalAmount: amount,
         });
       } else {
-        setError('No quote available for this swap');
+        setError(quoteResponse.msg || 'No quote available for this swap');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching quote:', err);
-      setError('Failed to fetch quote. Please try again.');
+      setError(err.message || 'Failed to fetch quote. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -111,7 +121,11 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
     try {
       // Get swap transaction data
       const swapResponse = await getSwapData({
-        ...currentSwapParams,
+        chainId: 1,
+        inTokenAddress: currentSwapParams.fromToken,
+        outTokenAddress: currentSwapParams.toToken,
+        amount: currentSwapParams.amount,
+        slippage: currentSwapParams.slippage,
         userWalletAddress: account,
       });
 
@@ -119,27 +133,25 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
         const swapData = swapResponse.data[0].tx;
         
         // Execute the swap
-        const tx = await executeSwap({
+        const result = await executeSwap({
           to: swapData.to,
           data: swapData.data,
           value: swapData.value,
-          gasLimit: swapData.gas,
+          gas: swapData.gas,
           gasPrice: swapData.gasPrice,
         });
 
-        setSuccessMessage(`Swap executed! Transaction hash: ${tx.hash}`);
+        setSuccessMessage(`Swap executed successfully! Transaction: ${result.tx.hash}`);
+        
+        // Clear quote after successful swap
         setQuote(null);
         setCurrentSwapParams(null);
       } else {
-        setError('Failed to get swap transaction data');
+        setError(swapResponse.msg || 'Failed to get swap transaction data');
       }
     } catch (err: any) {
       console.error('Error executing swap:', err);
-      if (err.code === 4001) {
-        setError('Transaction rejected by user');
-      } else {
-        setError('Failed to execute swap. Please try again.');
-      }
+      setError(err.message || 'Failed to execute swap. Please try again.');
     } finally {
       setSwapLoading(false);
     }
@@ -180,9 +192,15 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           Swap Tokens
         </Typography>
 
-        {chainId !== 1 && (
+        {chainId !== 1 && account && (
           <Alert severity="warning" sx={{ mb: 3, borderRadius: '12px' }}>
             Please switch to Ethereum mainnet to use the DEX aggregator
+          </Alert>
+        )}
+
+        {!account && (
+          <Alert severity="info" sx={{ mb: 3, borderRadius: '12px' }}>
+            Connect your MetaMask wallet to start trading
           </Alert>
         )}
         
@@ -190,6 +208,8 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
           onGetQuote={handleGetQuote} 
           loading={loading} 
           balance={balance}
+          account={account}
+          chainId={chainId}
         />
         
         <QuoteDisplay 
@@ -203,17 +223,35 @@ export const TradingInterface: React.FC<TradingInterfaceProps> = ({
         />
       </TradingCard>
 
+      {/* Success Notification */}
       <Snackbar 
         open={!!successMessage} 
-        autoHideDuration={6000} 
+        autoHideDuration={8000} 
         onClose={() => setSuccessMessage(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert 
           onClose={() => setSuccessMessage(null)} 
           severity="success" 
-          sx={{ borderRadius: '12px' }}
+          sx={{ borderRadius: '12px', maxWidth: '400px' }}
         >
           {successMessage}
+        </Alert>
+      </Snackbar>
+
+      {/* Error Notification */}
+      <Snackbar 
+        open={!!error} 
+        autoHideDuration={6000} 
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setError(null)} 
+          severity="error" 
+          sx={{ borderRadius: '12px', maxWidth: '400px' }}
+        >
+          {error}
         </Alert>
       </Snackbar>
     </TradingContainer>

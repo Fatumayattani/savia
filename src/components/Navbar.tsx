@@ -1,7 +1,8 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Typography, Box, Button, Chip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import { WalletConnection } from './WalletConnection';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: 'rgba(255, 255, 255, 0.95)',
@@ -36,42 +37,84 @@ const ConnectButton = styled(Button)(({ theme }) => ({
 
 interface NavbarProps {
   account: string | null;
-  onConnect: () => void;
+  chainId: number | null;
+  isConnecting: boolean;
+  onConnect: () => Promise<void>;
+  onSwitchNetwork: () => Promise<void>;
+  onDisconnect: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ account, onConnect }) => {
+export const Navbar: React.FC<NavbarProps> = ({ 
+  account, 
+  chainId,
+  isConnecting,
+  onConnect,
+  onSwitchNetwork,
+  onDisconnect,
+}) => {
+  const [walletDialogOpen, setWalletDialogOpen] = useState(false);
+
+  const handleWalletClick = () => {
+    setWalletDialogOpen(true);
+  };
+
+  const handleWalletConnect = async () => {
+    await onConnect();
+  };
+
+  const isWrongNetwork = chainId && chainId !== 1;
+
   return (
-    <StyledAppBar position="fixed" elevation={0}>
-      <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
-        <Logo variant="h6">
-          Savia
-        </Logo>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'text.secondary',
-              display: { xs: 'none', sm: 'block' },
-              fontWeight: 500
-            }}
-          >
-            Smart DEX Aggregator
-          </Typography>
+    <>
+      <StyledAppBar position="fixed" elevation={0}>
+        <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
+          <Logo variant="h6">
+            Savia
+          </Logo>
           
-          <ConnectButton
-            variant="contained"
-            startIcon={<AccountBalanceWalletIcon />}
-            onClick={onConnect}
-            size="small"
-          >
-            {account 
-              ? `${account.substring(0, 6)}...${account.substring(38)}` 
-              : 'Connect Wallet'
-            }
-          </ConnectButton>
-        </Box>
-      </Toolbar>
-    </StyledAppBar>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Network Status */}
+            {account && (
+              <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
+                <Chip
+                  label={chainId === 1 ? 'Ethereum' : `Chain ${chainId}`}
+                  color={chainId === 1 ? 'success' : 'warning'}
+                  size="small"
+                  sx={{ fontWeight: 600 }}
+                />
+              </Box>
+            )}
+
+            {/* Wallet Button */}
+            <ConnectButton
+              variant="contained"
+              startIcon={<AccountBalanceWalletIcon />}
+              onClick={handleWalletClick}
+              disabled={isConnecting}
+              size="small"
+            >
+              {account 
+                ? `${account.substring(0, 6)}...${account.substring(38)}` 
+                : isConnecting 
+                  ? 'Connecting...'
+                  : 'Connect Wallet'
+              }
+            </ConnectButton>
+          </Box>
+        </Toolbar>
+      </StyledAppBar>
+
+      {/* Wallet Connection Dialog */}
+      <WalletConnection
+        open={walletDialogOpen}
+        onClose={() => setWalletDialogOpen(false)}
+        onConnect={handleWalletConnect}
+        isConnecting={isConnecting}
+        account={account}
+        chainId={chainId}
+        onSwitchNetwork={onSwitchNetwork}
+        onDisconnect={onDisconnect}
+      />
+    </>
   );
 };

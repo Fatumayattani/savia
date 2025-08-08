@@ -2,6 +2,14 @@ import axios from 'axios';
 
 const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
 
+// Enhanced error handling
+class OKXAPIError extends Error {
+  constructor(message: string, public code?: string) {
+    super(message);
+    this.name = 'OKXAPIError';
+  }
+}
+
 interface QuoteParams {
   chainId: number;
   inTokenAddress: string;
@@ -58,13 +66,36 @@ export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
         inTokenAddress: params.inTokenAddress,
         outTokenAddress: params.outTokenAddress,
         amount: params.amount,
-        slippage: params.slippage || '0.5', // Default 0.5% slippage
+        slippage: params.slippage || '0.5',
       },
+      timeout: 10000, // 10 second timeout
     });
+
+    if (response.data.code !== '0') {
+      throw new OKXAPIError(response.data.msg || 'Failed to get quote', response.data.code);
+    }
+
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching quote:', error);
-    throw new Error('Failed to fetch quote from OKX DEX API');
+    
+    if (error instanceof OKXAPIError) {
+      throw error;
+    }
+    
+    if (error.code === 'ECONNABORTED') {
+      throw new OKXAPIError('Request timeout. Please try again.');
+    }
+    
+    if (error.response?.status === 429) {
+      throw new OKXAPIError('Rate limit exceeded. Please wait a moment and try again.');
+    }
+    
+    if (error.response?.status >= 500) {
+      throw new OKXAPIError('OKX API is temporarily unavailable. Please try again later.');
+    }
+    
+    throw new OKXAPIError('Failed to fetch quote. Please check your connection and try again.');
   }
 };
 
@@ -79,27 +110,107 @@ export const getSwapData = async (params: SwapParams): Promise<SwapResponse> => 
         slippage: params.slippage || '0.5',
         userWalletAddress: params.userWalletAddress,
       },
+      timeout: 15000, // 15 second timeout for swap data
     });
+
+    if (response.data.code !== '0') {
+      throw new OKXAPIError(response.data.msg || 'Failed to get swap data', response.data.code);
+    }
+
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching swap data:', error);
-    throw new Error('Failed to fetch swap data from OKX DEX API');
+    
+    if (error instanceof OKXAPIError) {
+      throw error;
+    }
+    
+    if (error.code === 'ECONNABORTED') {
+      throw new OKXAPIError('Request timeout. Please try again.');
+    }
+    
+    throw new OKXAPIError('Failed to fetch swap data. Please try again.');
   }
 };
 
-// Token addresses for Ethereum mainnet
+// Supported tokens on Ethereum mainnet
 export const TOKENS = {
-  ETH: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-  USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  USDT: '0xdac17f958d2ee523a2206206994597c13d831ec7',
-  WETH: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
-  DAI: '0x6b175474e89094c44da98b954eedeac495271d0f',
+  ETH: {
+    address: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    symbol: 'ETH',
+    name: 'Ethereum',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png',
+  },
+  USDC: {
+    address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    symbol: 'USDC',
+    name: 'USD Coin',
+    decimals: 6,
+    logoURI: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png',
+  },
+  USDT: {
+    address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    symbol: 'USDT',
+    name: 'Tether USD',
+    decimals: 6,
+    logoURI: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png',
+  },
+  DAI: {
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    symbol: 'DAI',
+    name: 'Dai Stablecoin',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png',
+  },
+  WETH: {
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    symbol: 'WETH',
+    name: 'Wrapped Ether',
+    decimals: 18,
+    logoURI: 'https://tokens.1inch.io/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png',
+  },
 };
 
-export const TOKEN_DECIMALS = {
-  ETH: 18,
-  USDC: 6,
-  USDT: 6,
-  WETH: 18,
-  DAI: 18,
+export const SUPPORTED_CHAINS = {
+  1: {
+    name: 'Ethereum Mainnet',
+    rpcUrl: 'https://mainnet.infura.io/v3/',
+    blockExplorerUrl: 'https://etherscan.io',
+    nativeCurrency: {
+      name: 'Ether',
+      symbol: 'ETH',
+      decimals: 18,
+    },
+  },
+};
+
+export const formatTokenAmount = (amount: string, decimals: number): string => {
+  try {
+    if (decimals === 18) {
+      return formatEther(amount);
+    } else {
+      // For tokens with different decimals (like USDC/USDT with 6 decimals)
+      const divisor = Math.pow(10, decimals);
+      return (parseFloat(amount) / divisor).toString();
+    }
+  } catch (error) {
+    console.error('Error formatting token amount:', error);
+    return '0';
+  }
+};
+
+export const parseTokenAmount = (amount: string, decimals: number): string => {
+  try {
+    if (decimals === 18) {
+      return parseEther(amount).toString();
+    } else {
+      // For tokens with different decimals
+      const multiplier = Math.pow(10, decimals);
+      return Math.floor(parseFloat(amount) * multiplier).toString();
+    }
+  } catch (error) {
+    console.error('Error parsing token amount:', error);
+    return '0';
+  }
 };

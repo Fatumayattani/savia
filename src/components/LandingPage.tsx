@@ -7,18 +7,33 @@ import { CTASection } from './CTASection';
 
 interface LandingPageProps {
   account: string | null;
-  onConnect: () => void;
+  chainId: number | null;
+  isConnecting: boolean;
+  onConnect: () => Promise<void>;
+  onSwitchNetwork: () => Promise<void>;
+  onDisconnect: () => void;
   onGetStarted: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ 
   account, 
-  onConnect, 
+  chainId,
+  isConnecting,
+  onConnect,
+  onSwitchNetwork,
+  onDisconnect,
   onGetStarted 
 }) => {
   return (
     <Box>
-      <Navbar account={account} onConnect={onConnect} />
+      <Navbar 
+        account={account} 
+        chainId={chainId}
+        isConnecting={isConnecting}
+        onConnect={onConnect}
+        onSwitchNetwork={onSwitchNetwork}
+        onDisconnect={onDisconnect}
+      />
       <HeroSection />
       <StatsSection />
       <CTASection onGetStarted={onGetStarted} />
