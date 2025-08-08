@@ -43,7 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({ account, onConnect }) => {
   return (
     <StyledAppBar position="fixed" elevation={0}>
       <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
-        <Logo variant="h6" component="div">
+        <Logo variant="h6">
           Savia
         </Logo>
         
