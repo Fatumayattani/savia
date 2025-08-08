@@ -2,6 +2,20 @@ import axios from 'axios';
 import { formatEther, parseEther } from 'ethers';
 
 const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
+const OKX_API_KEY = 'eaa7947d-104b-4033-9b86-a0253676338a';
+const OKX_SECRET_KEY = '3CDA42067406E59D6FE13A2DCABBB456';
+
+// Create axios instance with authentication headers
+const okxApi = axios.create({
+  baseURL: OKX_BASE_URL,
+  headers: {
+    'OK-ACCESS-KEY': OKX_API_KEY,
+    'OK-ACCESS-SIGN': OKX_SECRET_KEY,
+    'OK-ACCESS-TIMESTAMP': () => Date.now().toString(),
+    'OK-ACCESS-PASSPHRASE': 'your-passphrase', // You may need to provide this
+    'Content-Type': 'application/json',
+  },
+});
 
 // Enhanced error handling
 class OKXAPIError extends Error {
@@ -61,7 +75,7 @@ interface SwapResponse {
 
 export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
   try {
-    const response = await axios.get(`${OKX_BASE_URL}/quote`, {
+    const response = await okxApi.get('/quote', {
       params: {
         chainId: params.chainId,
         inTokenAddress: params.inTokenAddress,
@@ -102,7 +116,7 @@ export const getQuote = async (params: QuoteParams): Promise<QuoteResponse> => {
 
 export const getSwapData = async (params: SwapParams): Promise<SwapResponse> => {
   try {
-    const response = await axios.get(`${OKX_BASE_URL}/swap`, {
+    const response = await okxApi.get('/swap', {
       params: {
         chainId: params.chainId,
         inTokenAddress: params.inTokenAddress,
