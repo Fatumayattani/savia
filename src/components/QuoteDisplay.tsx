@@ -14,6 +14,7 @@ import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
 import TimerIcon from '@mui/icons-material/Timer';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { formatEther, formatUnits } from 'ethers';
+import { formatEther, formatUnits } from 'ethers';
 
 const QuoteCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
