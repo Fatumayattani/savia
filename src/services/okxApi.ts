@@ -2,7 +2,7 @@ import axios from 'axios';
 import { formatEther, parseEther, formatUnits } from 'ethers';
 import CryptoJS from 'crypto-js';
 
-const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
+const OKX_BASE_URL = 'https://www.okx.com';
 
 // Enhanced error handling
 class OKXAPIError extends Error {
@@ -12,33 +12,32 @@ class OKXAPIError extends Error {
   }
 }
 
-// Generate OKX API signature
-const generateSignature = (timestamp: string, method: string, requestPath: string, body: string = '') => {
-  const secretKey = process.env.REACT_APP_OKX_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error('OKX Secret Key not found in environment variables');
-  }
-  
+// Generate OKX API signature according to their documentation
+const generateSignature = (timestamp: string, method: string, requestPath: string, body: string = '', secretKey: string) => {
   const message = timestamp + method + requestPath + body;
   return CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(message, secretKey));
 };
 
-// Create axios instance with dynamic authentication
-const createOKXRequest = (method: string, endpoint: string, params?: any) => {
+// Create OKX request with proper authentication
+const createOKXRequest = async (method: string, endpoint: string, params?: any) => {
   const apiKey = process.env.REACT_APP_OKX_API_KEY;
+  const secretKey = process.env.REACT_APP_OKX_SECRET_KEY;
   const passphrase = process.env.REACT_APP_OKX_PASSPHRASE || '';
   
-  if (!apiKey) {
-    throw new Error('OKX API Key not found in environment variables');
+  if (!apiKey || !secretKey) {
+    throw new Error('OKX API credentials not found in environment variables');
   }
 
-  const timestamp = Date.now().toString();
-  const requestPath = endpoint + (params ? '?' + new URLSearchParams(params).toString() : '');
-  const signature = generateSignature(timestamp, method.toUpperCase(), '/api/v5/dex/aggregator' + endpoint, '');
+  const timestamp = new Date().toISOString();
+  const requestPath = '/api/v5/dex/aggregator' + endpoint;
+  const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+  const fullPath = requestPath + queryString;
+  
+  const signature = generateSignature(timestamp, method.toUpperCase(), fullPath, '', secretKey);
 
   return axios({
     method,
-    url: OKX_BASE_URL + endpoint,
+    url: OKX_BASE_URL + fullPath,
     params,
     headers: {
       'OK-ACCESS-KEY': apiKey,
