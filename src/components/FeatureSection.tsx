@@ -100,7 +100,7 @@ export const FeatureSection: React.FC = () => {
         
         <Grid container spacing={4}>
           {features.map((feature, index) => (
-            <Grid item xs={12} md={6} lg={4} key={index} component="div">
+            <Grid item xs={12} md={6} lg={4} key={index}>
               <FeatureCard>
                 <CardContent sx={{ p: 4 }}>
                   <IconWrapper>
