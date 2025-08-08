@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ethers, BrowserProvider } from 'ethers';
+import { BrowserProvider } from 'ethers';
 
 declare global {
   interface Window {

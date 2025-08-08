@@ -55,7 +55,6 @@ export const QuoteDisplay: React.FC<QuoteDisplayProps> = ({ quote, loading, erro
           size="small"
           sx={{ mb: 2 }}
         />
-      </Typography>
       
       <Typography variant="body2" sx={{ 
         fontFamily: 'monospace',
