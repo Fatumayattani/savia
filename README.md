@@ -59,7 +59,7 @@ Savia is a decentralized exchange (DEX) aggregator interface that allows users t
 
 To enable live trading functionality, you'll need to obtain API credentials from OKX:
 
-1. **Create an OKX Account**: Visit [OKX.com](https://www.okx.com/okx-api) and create an account
+1. **Create an OKX Account**: Visit [OKX.com/okx-api](https://www.okx.com/okx-api) and create an account
 2. **Generate API Keys**: 
    - Go to your account settings
    - Navigate to API management
