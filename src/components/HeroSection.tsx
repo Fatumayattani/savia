@@ -109,28 +109,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartTrading }) => {
             </GradientButton>
           </Box>
         </HeroContent>
-        
-        {/* Static Cards */}
-        <StaticCard sx={{ top: '20%', left: '10%' }}>
-          <TrendingUpIcon sx={{ fontSize: 40, mb: 1 }} />
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            Best Rates
-          </Typography>
-        </StaticCard>
-        
-        <StaticCard sx={{ top: '30%', right: '15%' }}>
-          <SecurityIcon sx={{ fontSize: 40, mb: 1 }} />
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            Secure
-          </Typography>
-        </StaticCard>
-        
-        <StaticCard sx={{ bottom: '25%', left: '20%' }}>
-          <SpeedIcon sx={{ fontSize: 40, mb: 1 }} />
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-            Lightning Fast
-          </Typography>
-        </StaticCard>
       </Container>
     </HeroContainer>
   );
