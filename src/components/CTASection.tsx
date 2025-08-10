@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
 const CTAContainer = styled(Box)(({ theme }) => ({
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  background: 'linear-gradient(135deg, #10b981 0%, #f97316 100%)',
   color: 'white',
   py: 10,
   position: 'relative',
