@@ -9,16 +9,16 @@ import { Alert, Snackbar } from '@mui/material';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#667eea',
+      main: '#10b981',
     },
     secondary: {
-      main: '#764ba2',
+      main: '#f97316',
     },
     success: {
       main: '#10b981',
     },
     warning: {
-      main: '#f59e0b',
+      main: '#f97316',
     },
     error: {
       main: '#ef4444',

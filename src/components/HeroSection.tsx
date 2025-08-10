@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, Button, Container } from '@mui/material';
-import { styled, keyframes } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SecurityIcon from '@mui/icons-material/Security';
 import SpeedIcon from '@mui/icons-material/Speed';
@@ -9,25 +9,9 @@ interface HeroSectionProps {
   onStartTrading: () => void;
 }
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(5deg); }
-`;
-
-const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
 const HeroContainer = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
-  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  background: 'linear-gradient(135deg, #10b981 0%, #f97316 100%)',
   position: 'relative',
   display: 'flex',
   alignItems: 'center',
@@ -48,17 +32,15 @@ const HeroContent = styled(Box)(({ theme }) => ({
   zIndex: 2,
   color: 'white',
   textAlign: 'center',
-  animation: `${fadeInUp} 1s ease-out`,
 }));
 
-const FloatingCard = styled(Box)(({ theme }) => ({
+const StaticCard = styled(Box)(({ theme }) => ({
   position: 'absolute',
   background: 'rgba(255, 255, 255, 0.1)',
   backdropFilter: 'blur(20px)',
   borderRadius: '20px',
   padding: '20px',
   border: '1px solid rgba(255, 255, 255, 0.2)',
-  animation: `${float} 6s ease-in-out infinite`,
 }));
 
 const GradientButton = styled(Button)(({ theme }) => ({
@@ -95,7 +77,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartTrading }) => {
           >
             Trade Smarter with{' '}
             <Box component="span" sx={{ 
-              background: 'linear-gradient(45deg, #FFD700, #FFA500)',
+              background: 'linear-gradient(45deg, #f97316, #ea580c)',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -128,27 +110,27 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onStartTrading }) => {
           </Box>
         </HeroContent>
         
-        {/* Floating Cards */}
-        <FloatingCard sx={{ top: '20%', left: '10%', animationDelay: '0s' }}>
+        {/* Static Cards */}
+        <StaticCard sx={{ top: '20%', left: '10%' }}>
           <TrendingUpIcon sx={{ fontSize: 40, mb: 1 }} />
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             Best Rates
           </Typography>
-        </FloatingCard>
+        </StaticCard>
         
-        <FloatingCard sx={{ top: '30%', right: '15%', animationDelay: '2s' }}>
+        <StaticCard sx={{ top: '30%', right: '15%' }}>
           <SecurityIcon sx={{ fontSize: 40, mb: 1 }} />
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             Secure
           </Typography>
-        </FloatingCard>
+        </StaticCard>
         
-        <FloatingCard sx={{ bottom: '25%', left: '20%', animationDelay: '4s' }}>
+        <StaticCard sx={{ bottom: '25%', left: '20%' }}>
           <SpeedIcon sx={{ fontSize: 40, mb: 1 }} />
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             Lightning Fast
           </Typography>
-        </FloatingCard>
+        </StaticCard>
       </Container>
     </HeroContainer>
   );
