@@ -47,7 +47,6 @@ Savia is a decentralized exchange (DEX) aggregator interface that allows users t
    REACT_APP_OKX_PASSPHRASE=your_passphrase_here
    ```
    
-   **Note**: Without valid API credentials, the app will run in demo mode with simulated quotes.
 
 4. Start the development server:
    ```bash
@@ -77,8 +76,6 @@ To enable live trading functionality, you'll need to obtain API credentials from
 | `REACT_APP_OKX_API_KEY` | Your OKX API key | Yes (for live trading) |
 | `REACT_APP_OKX_SECRET_KEY` | Your OKX secret key | Yes (for live trading) |
 | `REACT_APP_OKX_PASSPHRASE` | Your OKX API passphrase | Yes (for live trading) |
-
-**Security Note**: Never commit your `.env` file to version control. The `.env` file is already included in `.gitignore`.
 
 ## Configuration
 
