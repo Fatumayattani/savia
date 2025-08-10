@@ -10,15 +10,6 @@ Savia is a decentralized exchange (DEX) aggregator interface that allows users t
 - **Best Price Routing**: Automatically finds the best price across multiple DEXs
 - **Clean Interface**: Simple, user-friendly interface for DeFi operations
 
-## Upcoming Features
-
-- [ ] Swap execution functionality
-- [ ] Token selection dropdown
-- [ ] Multi-chain support (Ethereum, BSC, Solana, etc.)
-- [ ] Additional wallet support (WalletConnect, Phantom)
-- [ ] Slippage tolerance settings
-- [ ] Transaction history
-
 ## Technologies Used
 
 - React (TypeScript)
