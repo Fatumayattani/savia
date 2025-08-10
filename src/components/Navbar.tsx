@@ -70,16 +70,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       <StyledAppBar position="fixed" elevation={0}>
         <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
           <Logo variant="h6">
-            <Box
-              component="img"
-              src="/savlogo.png"
-              alt="Savia Logo"
-              sx={{
-                width: 32,
-                height: 32,
-                objectFit: 'contain',
-              }}
-            />
             Savia
           </Logo>
           
