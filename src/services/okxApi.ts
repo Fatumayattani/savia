@@ -2,7 +2,7 @@ import axios from 'axios';
 import { formatEther, parseEther, formatUnits } from 'ethers';
 import CryptoJS from 'crypto-js';
 
-const OKX_BASE_URL = 'https://www.okx.com/api/v5/dex/aggregator';
+const OKX_BASE_URL = 'https://www.okx.com';
 
 // OKX API Configuration
 const OKX_CONFIG = {
